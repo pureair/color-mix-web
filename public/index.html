@@ -16,7 +16,7 @@
 
         <main class="card">
             <div class="input-section">
-                <input type="text" id="colorInput" placeholder="Enter color value (e.g., #5F2A1D, 5F2A1D, 95,42,29, 001 22 33, 0 0.7 0.37)" aria-label="Color Input">
+                <input type="text" id="colorInput" placeholder="Enter color value (e.g., 5F2A1D, #5F2A1D, 95,42,29, 001 12 34, 0 0.7 0.37)" aria-label="Color Input">
                 <button id="convertButton">Convert</button>
             </div>
             <p class="input-tip">
@@ -34,8 +34,32 @@
                         <p>HSV: <span id="outputHSV"></span></p>
                     </div>
                     <div class="card result-card mixing-ratios-card">
-                        <h3>Mixing Ratios</h3>
-                        <div class="mixing-note" style="font-size:0.98em; margin-bottom:10px; text-align:center">(Ratios are accurate to 1:8)</div>
+                                                                        <h3 style="margin-bottom:0px; display:flex; align-items:center; justify-content:center; text-align:center;">
+                                                                            <span style="display:inline-block;">Mixing Ratios</span>
+                                                      <span class="tip-icon" tabindex="0" style="display:inline-block; margin-left:8px; cursor:pointer; position:relative;">
+                                                        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="vertical-align:middle;"><circle cx="10" cy="10" r="10" fill="#5d5dff"/><text x="10" y="15" text-anchor="middle" font-size="13" fill="#fff" font-family="Segoe UI,Arial,sans-serif">i</text></svg>
+                                                        <span class="tip-tooltip" style="display:none; position:absolute; left:24px; top:0; z-index:10; background:#23263a; color:#fff; font-size:0.7em; font-family:Segoe UI,Arial,sans-serif; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.18); padding:14px 18px; max-width:600px; min-width:300px; line-height:1.5; text-align:left; font-weight: normal;">
+                                                            <b>Why is white (W) included?</b><br>
+                                                            W means white. When applying paint on paper, white is provided by the paper. If the paper is translucent or the paint is solid (no transparency), white paint should be added to provide the white that is otherwise provided by the paper.<br><br>
+                                                            <b>About the mixing:</b><br>
+                                                            The mix is mathematical, not a physical simulation of real-world pigment particle reflective properties. The result should be understood as a guide for what to add on top of a neutral color to approximate the given tint.
+                                                        </span>
+                                                    </span>
+                                                </h3>
+        <style>
+        .tip-icon:focus .tip-tooltip,
+        .tip-icon:hover .tip-tooltip {
+            display: block !important;
+        }
+        .tip-icon svg {
+            box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+            border-radius: 50%;
+        }
+        .tip-tooltip {
+            transition: opacity 0.15s;
+        }
+        </style>
+                        <div class="mixing-note" style="font-size:0.98em; margin-bottom:30px; text-align:center; color:var(--primary-color)">(Ratios are accurate to 1:8)</div>
                         <div class="ratio-item">
                             <span class="ratio-label">CMYW:</span>
                             <span id="outputCMYW"></span>
@@ -58,7 +82,7 @@
         </main>
         <footer class="footer">
             <a href="#" class="footer-link">About</a>
-            <a href="https://github.com/your-username/your-repo" target="_blank" class="footer-link">Github Repo</a>
+            <a href="https://github.com/pureair/color-mix-web" target="_blank" class="footer-link">Github Repo</a>
             <span class="footer-text">Hosted on Cloudflare Pages</span>
         </footer>
     </div>
@@ -110,7 +134,7 @@
             document.getElementById('outputHex').textContent = hex;
             document.getElementById('outputRGB').textContent = `(${r}, ${g}, ${b})`;
             let [h, s, v] = rgbToHsv(r, g, b);
-            document.getElementById('outputHSV').textContent = `(${h.toFixed(2)}, ${s.toFixed(3)}, ${v.toFixed(3)})`;
+            document.getElementById('outputHSV').textContent = `(${h.toFixed(0)}, ${s.toFixed(2)}, ${v.toFixed(2)})`;
             // CMYW
             let [c, m, y, w] = window.colorMix.rgbToCmyw(r, g, b);
             let cmywRatio = window.colorMix.normalizeRatio([c, m, y, w]);
