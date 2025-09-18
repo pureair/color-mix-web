@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ColorMixr - RGB/HSV to CMYK/RYB Ratios</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%235D5DFF' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-6h-2v6zm0-8h2V7h-2v2z'/%3E%3C/svg%3E" type="image/svg+xml">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="logo">ColorMixr <span class="logo-icon">&#x2728;</span></h1>
+            <p class="subtitle">RGB/HSV to CMYK/RYB Ratios</p>
+        </header>
+
+        <main class="card">
+            <div class="input-section">
+                <input type="text" id="colorInput" placeholder="Enter color value (e.g., #5F2A1D, 5F2A1D, 95,42,29, 001 22 33, 0 0.7 0.37)" aria-label="Color Input">
+                <button id="convertButton">Convert</button>
+            </div>
+            <p class="input-tip">
+                <span class="icon">?</span> Input can be RGB or HSV. For integer RGB, use at least one 3-digit number (eg. 012).
+            </p>
+            <div id="errorMsg" style="color:#ff6b6b; display:none; margin-bottom:10px;"></div>
+            <div id="resultsSection" class="results-section hidden">
+                <h2>Results</h2>
+                <div class="result-grid">
+                    <div class="card result-card input-color-card">
+                        <h3>Input Color</h3>
+                        <div id="inputColorBlock" class="color-block"></div>
+                        <p>RGB: <span id="outputHex"></span></p>
+                        <p>RGB: <span id="outputRGB"></span></p>
+                        <p>HSV: <span id="outputHSV"></span></p>
+                    </div>
+                    <div class="card result-card mixing-ratios-card">
+                        <h3>Mixing Ratios</h3>
+                        <div class="mixing-note" style="font-size:0.98em; margin-bottom:10px; text-align:center">(Ratios are accurate to 1:8)</div>
+                        <div class="ratio-item">
+                            <span class="ratio-label">CMYW:</span>
+                            <span id="outputCMYW"></span>
+                        </div>
+                        <div class="ratio-item">
+                            <span class="ratio-label">RYBW:</span>
+                            <span id="outputRYBW"></span>
+                        </div>
+                        <div class="ratio-item">
+                            <span class="ratio-label">CMYKW:</span>
+                            <span id="outputCMYKW"></span>
+                        </div>
+                        <div class="ratio-item">
+                            <span class="ratio-label">RYBKW:</span>
+                            <span id="outputRYBKW"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <a href="#" class="footer-link">About</a>
+            <a href="https://github.com/your-username/your-repo" target="_blank" class="footer-link">Github Repo</a>
+            <span class="footer-text">Hosted on Cloudflare Pages</span>
+        </footer>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+    // UI logic for ColorMixr
+    function rgbToHex(r, g, b) {
+        return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('').toUpperCase();
+    }
+    function rgbToHsv(r, g, b) {
+        r /= 255; g /= 255; b /= 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, v = max;
+        let d = max - min;
+        s = max === 0 ? 0 : d / max;
+        if (max === min) h = 0;
+        else {
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6; h = h * 360;
+        }
+        // Return decimals, not percent
+        return [h, s, v];
+    }
+    function showError(msg) {
+        document.getElementById('errorMsg').textContent = msg;
+        document.getElementById('errorMsg').style.display = 'block';
+        document.getElementById('resultsSection').classList.add('hidden');
+    }
+    function clearError() {
+        document.getElementById('errorMsg').style.display = 'none';
+    }
+    document.getElementById('convertButton').onclick = function() {
+        clearError();
+        let input = document.getElementById('colorInput').value;
+        try {
+            let [mode, [r, g, b]] = window.colorMix.parseInput(input);
+            // Clamp values
+            r = Math.max(0, Math.min(255, r));
+            g = Math.max(0, Math.min(255, g));
+            b = Math.max(0, Math.min(255, b));
+            // Show color block
+            let hex = rgbToHex(r, g, b);
+            document.getElementById('inputColorBlock').style.backgroundColor = hex;
+            document.getElementById('outputHex').textContent = hex;
+            document.getElementById('outputRGB').textContent = `(${r}, ${g}, ${b})`;
+            let [h, s, v] = rgbToHsv(r, g, b);
+            document.getElementById('outputHSV').textContent = `(${h.toFixed(2)}, ${s.toFixed(3)}, ${v.toFixed(3)})`;
+            // CMYW
+            let [c, m, y, w] = window.colorMix.rgbToCmyw(r, g, b);
+            let cmywRatio = window.colorMix.normalizeRatio([c, m, y, w]);
+            document.getElementById('outputCMYW').textContent = `${c.toFixed(2)}, ${m.toFixed(2)}, ${y.toFixed(2)}, ${w.toFixed(2)} → ratio ${cmywRatio}`;
+            // RYBW
+            let rybkw = window.colorMix.rgbToRybkw(r, g, b);
+            let ryb = [rybkw.Red + rybkw.Black, rybkw.Yellow + rybkw.Black, rybkw.Blue + rybkw.Black, rybkw.White];
+            let rybwRatio = window.colorMix.normalizeRatio(ryb);
+            document.getElementById('outputRYBW').textContent = `${(ryb[0]/100).toFixed(2)}, ${(ryb[1]/100).toFixed(2)}, ${(ryb[2]/100).toFixed(2)}, ${(ryb[3]/100).toFixed(2)} → ratio ${rybwRatio}`;
+            // CMYKW
+            let cmykw = window.colorMix.rgbToCmykw(r, g, b);
+            let cmykwArr = [cmykw.Cyan, cmykw.Magenta, cmykw.Yellow, cmykw.Black, cmykw.White].map(x => x/100);
+            let cmykwRatio = window.colorMix.getIntegerRatio(cmykw);
+            document.getElementById('outputCMYKW').textContent = `${cmykwArr.map(v=>v.toFixed(2)).join(', ')} → ratio ${cmykwRatio}`;
+            // RYBKW
+            let rybkwArr = [rybkw.Red, rybkw.Yellow, rybkw.Blue, rybkw.Black, rybkw.White].map(x => x/100);
+            let rybkwRatio = window.colorMix.getIntegerRatio(rybkw);
+            document.getElementById('outputRYBKW').textContent = `${rybkwArr.map(v=>v.toFixed(2)).join(', ')} → ratio ${rybkwRatio}`;
+            document.getElementById('resultsSection').classList.remove('hidden');
+        } catch (e) {
+            showError('Invalid input. Please enter a valid color value.');
+        }
+    };
+    // Enter key triggers convert
+    document.getElementById('colorInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('convertButton').click();
+    });
+    </script>
+</body>
+</html>

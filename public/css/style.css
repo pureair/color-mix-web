@@ -1,0 +1,316 @@
+:root {
+    --bg-color: #2e3440; /* Dark background */
+    --card-bg: #3b4252; /* Card background */
+    --text-color: #eceff4; /* Light text */
+    --primary-color: #5d5dff; /* Accent blue */
+    --input-bg: #4c566a; /* Input field background */
+    --border-color: #434c5e; /* Border for cards */
+    --shadow-color: rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align to top */
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+.container {
+    max-width: 900px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo {
+    font-size: 2.8em;
+    font-weight: 700;
+    color: var(--text-color);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.logo-icon {
+    color: var(--primary-color);
+    font-size: 0.8em;
+}
+
+.subtitle {
+    font-size: 1.1em;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin-top: 5px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 25px;
+    box-shadow: 0 8px 16px var(--shadow-color);
+    border: 1px solid var(--border-color);
+}
+
+.input-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#colorInput {
+    flex-grow: 1;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    font-size: 1em;
+    outline: none;
+    transition: border-color 0.2s ease-in-out;
+    font-family: inherit;
+}
+
+#colorInput::placeholder {
+    color: var(--text-color);
+    opacity: 0.6;
+    font-family: inherit;
+}
+
+#colorInput:focus {
+    border-color: var(--primary-color);
+}
+
+#convertButton {
+    padding: 12px 25px;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    min-width: 100px;
+}
+
+#convertButton:hover {
+    background-color: #6a6aff; /* Lighter primary */
+}
+
+#convertButton:active {
+    transform: translateY(1px);
+}
+
+.input-tip {
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: -10px;
+    margin-bottom: 30px;
+}
+
+.input-tip .icon {
+    background-color: var(--primary-color);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.8em;
+}
+
+.results-section {
+    margin-top: 30px;
+}
+
+.results-section h2 {
+    font-size: 1.8em;
+    color: var(--text-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: 1fr 2.1fr; /* Input color card takes 1 part, ratios 2 parts */
+    gap: 25px;
+}
+
+.result-card {
+    padding: 25px;
+}
+
+
+.input-color-card h3, .mixing-ratios-card h3 {
+    font-size: 1.3em;
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+    text-align: center;
+}
+
+.input-color-card {
+    text-align: left;
+}
+
+.input-color-card p {
+    font-size: 0.75em;
+    margin: 8px 0;
+    text-align: left;
+    font-family: 'Cascadia Mono', monospace;
+    font-weight: 300;
+}
+
+.input-color-card h3 {
+    font-size: 1.1em;
+}
+
+.color-block {
+    width: 140px;
+    height: 140px;
+    margin: 0 0 18px 0;
+}
+
+.color-block {
+    width: 160px;
+    height: 100px;
+    border-radius: 8px;
+    margin: 0 auto 20px auto;
+    border: 3px solid var(--border-color);
+    box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+.ratio-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+}
+
+.ratio-item:last-child {
+    border-bottom: none;
+}
+
+
+.ratio-label {
+    font-weight: bold;
+    min-width: 80px;
+    color: var(--text-color);
+    font-family: 'Cascadia Mono', monospace;
+    font-weight: 300;
+    font-size: 0.85em;
+}
+
+.ratio-item span {
+    font-family: 'Cascadia Mono', monospace;
+    font-weight: 300;
+    font-size: 0.85em;
+    color: var(--text-color);
+}
+
+.color-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-left: 15px;
+    flex-shrink: 0;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-color);
+    opacity: 0.7;
+    font-size: 0.9em;
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+
+.footer-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+}
+
+.footer-link:hover {
+    color: #a0a0ff;
+}
+
+.footer-text {
+    /* Style for the plain text */
+}
+
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .result-grid {
+        grid-template-columns: 1fr; /* Stack cards on smaller screens */
+    }
+    .input-color-card, .mixing-ratios-card {
+        padding: 20px;
+    }
+    .logo {
+        font-size: 2.2em;
+    }
+    #convertButton {
+        padding: 12px 15px;
+        min-width: unset;
+    }
+    .input-tip {
+        flex-direction: column;
+        text-align: center;
+        margin-top: -5px;
+    }
+    .input-tip .icon {
+        margin-bottom: 5px;
+    }
+    .footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    .card {
+        padding: 20px;
+    }
+    .logo {
+        font-size: 1.8em;
+    }
+    .input-section {
+        flex-direction: column;
+    }
+    #convertButton {
+        width: 100%;
+    }
+}
