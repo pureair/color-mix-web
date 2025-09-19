@@ -149,7 +149,27 @@
             let rybkw = window.colorMix.rgbToRybkw(r, g, b);
             let ryb = [rybkw.Red + rybkw.Black, rybkw.Yellow + rybkw.Black, rybkw.Blue + rybkw.Black, rybkw.White];
             let rybwRatio = window.colorMix.normalizeRatio(ryb);
-            document.getElementById('outputRYBW').textContent = `${(ryb[0]/100).toFixed(2)}, ${(ryb[1]/100).toFixed(2)}, ${(ryb[2]/100).toFixed(2)}, ${(ryb[3]/100).toFixed(2)} → ratio ${rybwRatio}`;
+            let rybwText = `${(ryb[0]/100).toFixed(2)}, ${(ryb[1]/100).toFixed(2)}, ${(ryb[2]/100).toFixed(2)}, ${(ryb[3]/100).toFixed(2)} → ratio ${rybwRatio}`;
+            document.getElementById('outputRYBW').textContent = rybwText;
+            // Show notice if any RYBW value > 1
+            let rybwNotice = document.getElementById('rybwNotice');
+            if (!rybwNotice) {
+                rybwNotice = document.createElement('div');
+                rybwNotice.id = 'rybwNotice';
+                rybwNotice.style.color = '#ffb347';
+                rybwNotice.style.fontSize = '0.88em';
+                rybwNotice.style.fontFamily = 'Cascadia Mono, monospace';
+                rybwNotice.style.fontWeight = 300;
+                rybwNotice.style.marginTop = '0px';
+                document.getElementById('outputRYBW').parentNode.appendChild(rybwNotice);
+            }
+            if (ryb.slice(0, 3).some(v => v/100 > 1.01)) {
+                rybwNotice.textContent = '⚠️ This color cannot be achieved by mixing RYB paints (beyond range).';
+                rybwNotice.style.display = '';
+            } else {
+                rybwNotice.textContent = '';
+                rybwNotice.style.display = 'none';
+            }
             // CMYKW
             let cmykw = window.colorMix.rgbToCmykw(r, g, b);
             let cmykwArr = [cmykw.Cyan, cmykw.Magenta, cmykw.Yellow, cmykw.Black, cmykw.White].map(x => x/100);

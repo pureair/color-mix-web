@@ -67,12 +67,19 @@ function getIntegerRatio(paintMix) {
 // --- Input detection ---
 function parseInput(s) {
 	s = s.trim();
-	// Hex RGB direct forms
+	// Hex RGB direct forms (6 hex digits, with or without #)
 	if (/^#?[0-9A-Fa-f]{6}$/.test(s) || s.toLowerCase().startsWith("0x")) {
-		let hexval = s.replace("#", "").replace("0x", "");
+		let hexval = s.replace(/^#|0x/i, "");
 		let r = parseInt(hexval.slice(0, 2), 16);
 		let g = parseInt(hexval.slice(2, 4), 16);
 		let b = parseInt(hexval.slice(4, 6), 16);
+		return ["rgb", [r, g, b]];
+	}
+	// If input is 6 digits and all are hex, treat as hex RGB
+	if (/^[0-9A-Fa-f]{6}$/.test(s)) {
+		let r = parseInt(s.slice(0, 2), 16);
+		let g = parseInt(s.slice(2, 4), 16);
+		let b = parseInt(s.slice(4, 6), 16);
 		return ["rgb", [r, g, b]];
 	}
 	// Space or comma separated
