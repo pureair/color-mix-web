@@ -132,22 +132,45 @@ function rgbToCmyw(r, g, b) {
 function rgbToCmykw(r, g, b) {
 	if (![r, g, b].every(val => 0 <= val && val <= 255)) throw new Error("RGB values must be 0-255");
 	let rNorm = r / 255, gNorm = g / 255, bNorm = b / 255;
-	if (rNorm === gNorm && gNorm === bNorm) {
-		let white = rNorm * 100, black = (1 - rNorm) * 100;
-		return {Cyan: 0, Magenta: 0, Yellow: 0, Black: black, White: white};
-	}
-	let white = Math.min(rNorm, gNorm, bNorm);
+	// Calculate Black (K) paint component
 	let black = 1 - Math.max(rNorm, gNorm, bNorm);
+	// Calculate White (W) paint component
+	let white = Math.min(rNorm, gNorm, bNorm);
+	// Calculate the total amount of "color"
 	let colorPart = 1 - white - black;
-	if (colorPart === 0) return {Cyan: 0, Magenta: 0, Yellow: 0, Black: black * 100, White: white * 100};
-	let rChroma = (rNorm - white) / colorPart;
-	let gChroma = (gNorm - white) / colorPart;
-	let bChroma = (bNorm - white) / colorPart;
-	let c = 1 - rChroma, m = 1 - gChroma, y = 1 - bChroma;
+	// Handle the pure gray case and black/white colors where color_part is 0
+	if (colorPart === 0) {
+		return {
+			Cyan: 0,
+			Magenta: 0,
+			Yellow: 0,
+			Black: +(black * 100).toFixed(2),
+			White: +(white * 100).toFixed(2)
+		};
+	}
+	// Core CMYK conversion
+	let c = (1 - rNorm - black) / (1 - black);
+	let m = (1 - gNorm - black) / (1 - black);
+	let y = (1 - bNorm - black) / (1 - black);
+	// Normalize CMY so they sum to the color_part
 	let totalCmy = c + m + y;
-	if (totalCmy === 0) return {Cyan: 0, Magenta: 0, Yellow: 0, Black: black * 100, White: white * 100};
-	let cRatio = c / totalCmy, mRatio = m / totalCmy, yRatio = y / totalCmy;
-	let cyan = cRatio * colorPart, magenta = mRatio * colorPart, yellow = yRatio * colorPart;
+	if (totalCmy === 0) {
+		return {
+			Cyan: 0,
+			Magenta: 0,
+			Yellow: 0,
+			Black: +(black * 100).toFixed(2),
+			White: +(white * 100).toFixed(2)
+		};
+	}
+	let cRatio = c / totalCmy;
+	let mRatio = m / totalCmy;
+	let yRatio = y / totalCmy;
+	// Calculate final paint amounts by distributing the color part
+	let cyan = cRatio * colorPart;
+	let magenta = mRatio * colorPart;
+	let yellow = yRatio * colorPart;
+	// Return as percentages, rounded to 2 decimal places
 	return {
 		Cyan: +(cyan * 100).toFixed(2),
 		Magenta: +(magenta * 100).toFixed(2),
@@ -157,40 +180,53 @@ function rgbToCmykw(r, g, b) {
 	};
 }
 
-function rgbToRybChroma(r, g, b) {
+
+// Custom helper function to convert pure RGB chroma to RYB chroma (no normalization)
+function _rgbToRybCustom(r, g, b) {
 	let w = Math.min(r, g, b);
-	r -= w; g -= w; b -= w;
-	let maxG = Math.max(r, g, b);
+	r = r - w;
+	g = g - w;
+	b = b - w;
 	let y = Math.min(r, g);
-	r -= y; g -= y;
-	b += g; y += g;
-	let maxY = Math.max(r, y, b);
-	if (maxY > 0) {
-		let norm = maxG / maxY;
-		r *= norm; y *= norm; b *= norm;
-	}
+	r = r - y;
+	g = g - y;
+	// Green is a mix of yellow and blue in RYB, so split the green component
+	b = b + g;
+	y = y + g;
+	// No normalization here
 	return [r, y, b];
 }
+
 
 function rgbToRybkw(r, g, b) {
 	if (![r, g, b].every(val => 0 <= val && val <= 255)) throw new Error("RGB values must be 0-255");
 	let rNorm = r / 255, gNorm = g / 255, bNorm = b / 255;
-	if (rNorm === gNorm && gNorm === bNorm) {
-		let white = rNorm * 100, black = (1 - rNorm) * 100;
-		return {Red: 0, Yellow: 0, Blue: 0, Black: black, White: white};
-	}
+	// Calculate White and Black paint components
 	let white = Math.min(rNorm, gNorm, bNorm);
 	let black = 1 - Math.max(rNorm, gNorm, bNorm);
+	// Calculate the total amount of "color"
 	let colorPart = 1 - white - black;
-	if (colorPart === 0) return {Red: 0, Yellow: 0, Blue: 0, Black: black * 100, White: white * 100};
+	if (colorPart === 0) {
+		return {
+			Red: 0,
+			Yellow: 0,
+			Blue: 0,
+			Black: +(black * 100).toFixed(2),
+			White: +(white * 100).toFixed(2)
+		};
+	}
+	// Isolate the pure chroma by removing gray components
 	let rChroma = (rNorm - white) / colorPart;
 	let gChroma = (gNorm - white) / colorPart;
 	let bChroma = (bNorm - white) / colorPart;
-	let [rRyb, yRyb, bRyb] = rgbToRybChroma(rChroma, gChroma, bChroma);
-	let totalRyb = rRyb + yRyb + bRyb;
-	if (totalRyb === 0) return {Red: 0, Yellow: 0, Blue: 0, Black: black * 100, White: white * 100};
-	let rRatio = rRyb / totalRyb, yRatio = yRyb / totalRyb, bRatio = bRyb / totalRyb;
-	let red = rRatio * colorPart, yellow = yRatio * colorPart, blue = bRatio * colorPart;
+	// Convert pure RGB chroma to RYB chroma (custom, no normalization)
+	let [rRyb, yRyb, bRyb] = _rgbToRybCustom(rChroma, gChroma, bChroma);
+	// For a color where a component is 1.0, the "color part" is absorbed by that component.
+	// We can assume a new total for the RYB values that represents their "volume".
+	let red = rRyb * colorPart;
+	let yellow = yRyb * colorPart;
+	let blue = bRyb * colorPart;
+	// Return as percentages, rounded to 2 decimal places
 	return {
 		Red: +(red * 100).toFixed(2),
 		Yellow: +(yellow * 100).toFixed(2),
@@ -200,6 +236,20 @@ function rgbToRybkw(r, g, b) {
 	};
 }
 
+
+function hueToNcol(hue) {
+  while (hue >= 360) {
+    hue = hue - 360;
+  }
+  if (hue < 60) {return "R" + (hue / 0.6); }
+  if (hue < 120) {return "Y" + ((hue - 60) / 0.6); }
+  if (hue < 180) {return "G" + ((hue - 120) / 0.6); }
+  if (hue < 240) {return "C" + ((hue - 180) / 0.6); }
+  if (hue < 300) {return "B" + ((hue - 240) / 0.6); }
+  if (hue < 360) {return "M" + ((hue - 300) / 0.6); }
+}
+
+
 // --- Exported for UI integration ---
 window.colorMix = {
 	parseInput,
@@ -207,5 +257,6 @@ window.colorMix = {
 	rgbToCmykw,
 	rgbToRybkw,
 	normalizeRatio,
-	getIntegerRatio
+	getIntegerRatio,
+	hueToNcol
 };
