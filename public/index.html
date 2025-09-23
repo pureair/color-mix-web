@@ -38,13 +38,14 @@
                                                                             <span style="display:inline-block;">Mixing Ratios</span>
                                                       <span class="tip-icon" tabindex="0" style="display:inline-block; margin-left:8px; cursor:pointer; position:relative;">
                                                         <svg width="18" height="18" viewBox="0 0 20 20" fill="none" style="vertical-align:middle;"><circle cx="10" cy="10" r="10" fill="#5d5dff"/><text x="10" y="15" text-anchor="middle" font-size="13" fill="#fff" font-family="Segoe UI,Arial,sans-serif">i</text></svg>
-                                                        <span class="tip-tooltip" style="display:none; position:absolute; left:24px; top:0; z-index:10; background:#23263a; color:#fff; font-size:0.7em; font-family:Segoe UI,Arial,sans-serif; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.18); padding:14px 18px; max-width:600px; min-width:300px; line-height:1.5; text-align:left; font-weight: normal;">
+                                                        <span class="tip-tooltip" style="display:none; position:absolute; left:24px; top:0; z-index:10; background:#23263a; color:#fff; font-size:0.7em; font-family:Segoe UI,Arial,sans-serif; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.18); padding:14px 18px; max-width:800px; min-width:400px; line-height:1.5; text-align:left; font-weight: normal;">
                                                             <b>Why is white (W) included?</b><br>
                                                             W means white. When applying paint on paper, white is provided by the paper. If the paper is translucent or the paint is covering the entire surface with no transparency, white paint should be added to provide the white that is otherwise provided by the paper.<br><br>
                                                             <b>About the mixing:</b><br>
-                                                            The mix is mathematical, not a physical simulation of real-world pigment particle reflective properties. The result should be understood as a guide for what to add on top of a neutral color to approximate the given tint.<br><br>
+                                                            The mix is mathematical and represents 3/4/5 layers of paint of each color, each layer has their own percentage coverage, not a physical simulation of real-world pigment particle mixed together. The result should be understood as a guide for what to add on top of a neutral color to approximate the given tint.<br><br>
                                                             <b>About Ncol:</b><br>
-                                                            NCol specifies colors using a color letter with a number to specify the distance (in percent) from the color. For example, R100 is pure red, R70 is a mix of 70% red and 30% of the next color on the color wheel (yellow), hence R70 is closer to yellow than to red. The color wheel order is Red-Yellow-Green-Cyan-Blue-Magenta-Red. The NCol system also includes white and black components to adjust whiteness (whiter means less satrate) and darkness (black pigments than absorb all color/light).
+                                                            NCol specifies colors using a color letter with a number to specify the distance (in percent) from the color. For example, R100 is pure red, R70 is a mix of 70% red and 30% of the next color on the color wheel (yellow), hence R70 is closer to yellow than to red. The color wheel order is Red-Yellow-Green-Cyan-Blue-Magenta-Red. The NCol system also includes white and black components to adjust whiteness (whiter means less satrate) and darkness (black pigments than absorb all color/light). Ncol is usefully in the sense that you are only mixing two colors (one primary and one secondary that is close to the traget color, which makes it more refined, as CMY are far apart), and the number gives you a good idea of how much of each color to use. Ncol is used in some paint mixing systems, such as the one used by the paint brand "Nerchau". More info:
+                                                            <a href="https://en.wikipedia.org/wiki/NCol" target="_blank" style="color:#fff; text-decoration:underline;">https://en.wikipedia.org/wiki/NCol</a>
                                                         </span>
                                                     </span>
                                                 </h3>
@@ -63,24 +64,24 @@
         </style>
                         <div class="mixing-note" style="font-size:0.98em; margin-bottom:20px; text-align:center; color:var(--primary-color)">(Ratios are accurate to 1:8)</div>
                         <div class="ratio-item">
-                            <span class="ratio-label">RYBW:</span>
+                            <span class="ratio-label">RYBW %:</span>
                             <span id="outputRYBW"></span>
                         </div>
                         <div class="ratio-item">
-                            <span class="ratio-label">CMYW:</span>
+                            <span class="ratio-label">CMYW %:</span>
                             <span id="outputCMYW"></span>
                         </div>
                         <div class="ratio-item">
-                            <span class="ratio-label">RYBKW:</span>
+                            <span class="ratio-label">RYBKW%:</span>
                             <span id="outputRYBKW"></span>
                         </div>
                         <div class="ratio-item">
-                            <span class="ratio-label">CMYKW:</span>
+                            <span class="ratio-label">CMYKW%:</span>
                             <span id="outputCMYKW"></span>
                         </div>
                         <div class="ratio-item">
-                            <span class="ratio-label">NcolWK:</span>
-                            <span id="outputNcol"></span>
+                            <span class="ratio-label" style="font-weight:700;">NcolWK:</span>
+                            <span id="outputNcol" style="font-weight:700;"></span>
                         </div>
                     </div>
                 </div>
@@ -141,16 +142,27 @@
             document.getElementById('outputRGB').textContent = `(${r}, ${g}, ${b})`;
             let [h, s, v] = rgbToHsv(r, g, b);
             document.getElementById('outputHSV').textContent = `(${h.toFixed(0)}, ${s.toFixed(2)}, ${v.toFixed(2)})`;
-            // CMYW
+
+            // Helper for formatting: always 2-digit, no decimals, omit prefix if 100
+            function fmt(prefix, val) {
+                let n = Math.floor(val);
+                if (n >= 100) return n;
+                return prefix + n.toString().padStart(2, '0');
+            }
+
+            // CMYW %
             let [c, m, y, w] = window.colorMix.rgbToCmyw(r, g, b);
             let cmywRatio = window.colorMix.normalizeRatio([c, m, y, w]);
-            document.getElementById('outputCMYW').textContent = `${c.toFixed(2)}, ${m.toFixed(2)}, ${y.toFixed(2)}, ${w.toFixed(2)} → ratio ${cmywRatio}`;
-            // RYBW
+            let cmywText = `${fmt('C',c*100)}, ${fmt('M',m*100)}, ${fmt('Y',y*100)}, ${fmt('W',w*100)} → ratio ${cmywRatio}`;
+            document.getElementById('outputCMYW').textContent = cmywText;
+
+            // RYBW %
             let rybkw = window.colorMix.rgbToRybkw(r, g, b);
             let ryb = [rybkw.Red + rybkw.Black, rybkw.Yellow + rybkw.Black, rybkw.Blue + rybkw.Black, rybkw.White];
             let rybwRatio = window.colorMix.normalizeRatio(ryb);
-            let rybwText = `${(ryb[0]/100).toFixed(2)}, ${(ryb[1]/100).toFixed(2)}, ${(ryb[2]/100).toFixed(2)}, ${(ryb[3]/100).toFixed(2)} → ratio ${rybwRatio}`;
+            let rybwText = `${fmt('R',ryb[0])}, ${fmt('Y',ryb[1])}, ${fmt('B',ryb[2])}, ${fmt('W',ryb[3])} → ratio ${rybwRatio}`;
             document.getElementById('outputRYBW').textContent = rybwText;
+
             // Show notice if any RYBW value > 1
             let rybwNotice = document.getElementById('rybwNotice');
             if (!rybwNotice) {
@@ -170,20 +182,27 @@
                 rybwNotice.textContent = '';
                 rybwNotice.style.display = 'none';
             }
-            // CMYKW
+
+            // CMYKW %
             let cmykw = window.colorMix.rgbToCmykw(r, g, b);
-            let cmykwArr = [cmykw.Cyan, cmykw.Magenta, cmykw.Yellow, cmykw.Black, cmykw.White].map(x => x/100);
+            let cmykwArr = [cmykw.Cyan, cmykw.Magenta, cmykw.Yellow, cmykw.Black, cmykw.White];
             let cmykwRatio = window.colorMix.getIntegerRatio(cmykw);
-            document.getElementById('outputCMYKW').textContent = `${cmykwArr.map(v=>v.toFixed(2)).join(', ')} → ratio ${cmykwRatio}`;
-            // RYBKW
-            let rybkwArr = [rybkw.Red, rybkw.Yellow, rybkw.Blue, rybkw.Black, rybkw.White].map(x => x/100);
+            let cmykwText = `${fmt('C',cmykwArr[0])}, ${fmt('M',cmykwArr[1])}, ${fmt('Y',cmykwArr[2])}, ${fmt('K',cmykwArr[3])}, ${fmt('W',cmykwArr[4])} → ratio ${cmykwRatio}`;
+            document.getElementById('outputCMYKW').textContent = cmykwText;
+
+            // RYBKW %
+            let rybkwArr = [rybkw.Red, rybkw.Yellow, rybkw.Blue, rybkw.Black, rybkw.White];
             let rybkwRatio = window.colorMix.getIntegerRatio(rybkw);
-            document.getElementById('outputRYBKW').textContent = `${rybkwArr.map(v=>v.toFixed(2)).join(', ')} → ratio ${rybkwRatio}`;
+            let rybkwText = `${fmt('R',rybkwArr[0])}, ${fmt('Y',rybkwArr[1])}, ${fmt('B',rybkwArr[2])}, ${fmt('K',rybkwArr[3])}, ${fmt('W',rybkwArr[4])} → ratio ${rybkwRatio}`;
+            document.getElementById('outputRYBKW').textContent = rybkwText;
+
             document.getElementById('resultsSection').classList.remove('hidden');
-            // Ncol
+
+            // NcolWK
             let ncol = window.colorMix.hueToNcol(h);
             ncol = ncol.substr(0, 1) + Math.round(Number(ncol.substr(1)));
-            document.getElementById('outputNcol').textContent = `${ncol}, ${(cmykw.White / 100).toFixed(2)}, ${(cmykw.Black / 100).toFixed(2)} (color wheel: R-Y-G-C-B-M-R)`;
+            let ncolText = `${ncol}, ${Math.floor(cmykw.White)}%, ${Math.floor(cmykw.Black)}% (color wheel: R-Y-G-C-B-M-R)`;
+            document.getElementById('outputNcol').textContent = ncolText;
 
         } catch (e) {
             showError('Invalid input. Please enter a valid color value.');

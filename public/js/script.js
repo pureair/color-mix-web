@@ -160,28 +160,28 @@ function rgbToCmykw(r, g, b) {
 	let m = (1 - gNorm - black) / (1 - black);
 	let y = (1 - bNorm - black) / (1 - black);
 	// Normalize CMY so they sum to the color_part
-	let totalCmy = c + m + y;
-	if (totalCmy === 0) {
-		return {
-			Cyan: 0,
-			Magenta: 0,
-			Yellow: 0,
-			Black: +(black * 100).toFixed(2),
-			White: +(white * 100).toFixed(2)
-		};
-	}
-	let cRatio = c / totalCmy;
-	let mRatio = m / totalCmy;
-	let yRatio = y / totalCmy;
+//	let totalCmy = c + m + y;
+//	if (totalCmy === 0) {
+//		return {
+//			Cyan: 0,
+//			Magenta: 0,
+//			Yellow: 0,
+//			Black: +(black * 100).toFixed(2),
+//			White: +(white * 100).toFixed(2)
+//		};
+//	}
+//	let cRatio = c / totalCmy;
+//	let mRatio = m / totalCmy;
+//	let yRatio = y / totalCmy;
 	// Calculate final paint amounts by distributing the color part
-	let cyan = cRatio * colorPart;
-	let magenta = mRatio * colorPart;
-	let yellow = yRatio * colorPart;
+//	let cyan = cRatio * colorPart;
+//	let magenta = mRatio * colorPart;
+//	let yellow = yRatio * colorPart;
 	// Return as percentages, rounded to 2 decimal places
 	return {
-		Cyan: +(cyan * 100).toFixed(2),
-		Magenta: +(magenta * 100).toFixed(2),
-		Yellow: +(yellow * 100).toFixed(2),
+		Cyan: +(c * 100).toFixed(2),
+		Magenta: +(m * 100).toFixed(2),
+		Yellow: +(y * 100).toFixed(2),
 		Black: +(black * 100).toFixed(2),
 		White: +(white * 100).toFixed(2)
 	};
