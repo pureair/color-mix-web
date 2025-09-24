@@ -257,6 +257,36 @@ function hueToNcol(hue) {
 }
 
 
+// --- helper to convert ncol into mix string with full color names ---
+function ncolToMix(ncol) {
+  const wheel = ["R", "Y", "G", "C", "B", "M", "R"]; // wrap around
+  const letter = ncol[0];
+  const value = parseInt(ncol.slice(1), 10);
+
+  const idx = wheel.indexOf(letter);
+  if (idx === -1) return "";
+
+  const nextLetter = wheel[idx + 1];
+  const pct2 = value;
+  const pct1 = 100 - value;
+
+  // translate letters to full color names
+  const colorNames = {
+    "R": "Red",
+    "Y": "Yellow",
+    "G": "Green",
+    "C": "Cyan",
+    "B": "Blue",
+    "M": "Magenta"
+  };
+
+  const color1 = colorNames[letter] || letter;
+  const color2 = colorNames[nextLetter] || nextLetter;
+
+  return `${pct1}% ${color1} + ${pct2}% ${color2}`;
+}
+
+
 // --- Exported for UI integration ---
 window.colorMix = {
 	parseInput,
@@ -265,5 +295,6 @@ window.colorMix = {
 	rgbToRybkw,
 	normalizeRatio,
 	getIntegerRatio,
-	hueToNcol
+	hueToNcol,
+	ncolToMix
 };
