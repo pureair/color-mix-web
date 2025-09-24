@@ -176,7 +176,7 @@
                 document.getElementById('outputRYBW').parentNode.appendChild(rybwNotice);
             }
             if (ryb.slice(0, 3).some(v => v/100 > 1.01)) {
-                rybwNotice.textContent = '⚠️ This color cannot be achieved by mixing RYB paints (beyond range).';
+                rybwNotice.textContent = '⚠️ This color cannot be achieved by mixing RYB(KW) paints (beyond range).';
                 rybwNotice.style.display = '';
             } else {
                 rybwNotice.textContent = '';
